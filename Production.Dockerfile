@@ -48,16 +48,15 @@ CMD ["sh","-lc","\
   if [ \"${DB_CONNECTION}\" = \"sqlite\" ] && [ -n \"${DB_DATABASE}\" ]; then \
     mkdir -p \"$(dirname \"$DB_DATABASE\")\" && touch \"$DB_DATABASE\"; \
   fi; \
-  php artisan key:generate --force || true; \
+  mkdir -p /var/www/storage/framework/views /var/www/bootstrap/cache\
+  chmod -R 777 storage bootstrap/cache || true\
+  mkdir -p /var/www/storage/framework/sessions\
+  chmod -R 777 /var/www/storage /var/www/bootstrap/cache\
   php artisan migrate --force || true; \
   php artisan config:cache || true; \
   php artisan optimize:clear || true\
   php artisan config:cache || true\
   php artisan view:clear || true\
   php artisan view:cache || true\
-  mkdir -p /var/www/storage/framework/views /var/www/bootstrap/cache\
-  chmod -R 777 storage bootstrap/cache || true\
-  mkdir -p /var/www/storage/framework/sessions\
-  chmod -R 777 /var/www/storage /var/www/bootstrap/cache\
   php artisan serve --host=0.0.0.0 --port=$PORT \
 "]

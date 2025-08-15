@@ -36,27 +36,33 @@ RUN composer run-script post-autoload-dump -n || true \
 # Render will inject PORT
 ENV PORT=10000
 EXPOSE 10000
-
 CMD ["sh","-lc","\
-  set -e; \
+  set -Eeuo pipefail; \
   : \"${PORT:=10000}\"; \
+  # Ensure .env exists
   if [ ! -f .env ] && [ -f .env.example ]; then cp .env.example .env; fi; \
-  # Respect custom VIEW_COMPILED_PATH or use default
-  : \"${VIEW_COMPILED_PATH:=/var/www/storage/framework/views}\"; \
-  mkdir -p \"$VIEW_COMPILED_PATH\" storage/framework/{cache,cache/data,sessions,testing} bootstrap/cache; \
+  # Folders & perms
+  mkdir -p storage/framework/{cache,cache/data,sessions,testing,views} bootstrap/cache; \
   chmod -R 777 storage bootstrap/cache || true; \
-  if [ \"${DB_CONNECTION}\" = \"sqlite\" ] && [ -n \"${DB_DATABASE}\" ]; then \
-    mkdir -p \"$(dirname \"$DB_DATABASE\")\" && touch \"$DB_DATABASE\"; \
+  # SQLite file if used
+  if [ \"${DB_CONNECTION:-}\" = \"sqlite\" ] && [ -n \"${DB_DATABASE:-}\" ]; then \
+    mkdir -p \"$(dirname \"$DB_DATABASE\")\" && touch \"$DB_DATABASE\" && chmod 666 \"$DB_DATABASE\"; \
   fi; \
-  mkdir -p /var/www/storage/framework/views /var/www/bootstrap/cache\
-  chmod -R 777 storage bootstrap/cache || true\
-  mkdir -p /var/www/storage/framework/sessions\
-  chmod -R 777 /var/www/storage /var/www/bootstrap/cache\
+  # Generate APP_KEY if missing/empty
+  if ! grep -q '^APP_KEY=' .env || [ -z \"$(grep '^APP_KEY=' .env | cut -d= -f2)\" ]; then \
+    php artisan key:generate --force; \
+  fi; \
+  # Clear -> migrate -> re-cache
+  php artisan config:clear || true; \
+  php artisan cache:clear || true; \
+  php artisan view:clear || true; \
+  php artisan route:clear || true; \
   php artisan migrate --force || true; \
+  php artisan storage:link || true; \
   php artisan config:cache || true; \
-  php artisan optimize:clear || true\
-  php artisan config:cache || true\
-  php artisan view:clear || true\
-  php artisan view:cache || true\
-  php artisan serve --host=0.0.0.0 --port=$PORT \
+  php artisan route:cache || true; \
+  php artisan view:cache || true; \
+  # Run app
+  php artisan serve --host=0.0.0.0 --port=${PORT} \
 "]
+

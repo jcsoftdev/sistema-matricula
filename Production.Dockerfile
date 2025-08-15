@@ -35,6 +35,7 @@ RUN composer run-script post-autoload-dump -n || true \
 
 RUN mkdir -p /var/www/storage/framework/{cache,cache/data,sessions,testing,views} /var/www/bootstrap/cache \
  && chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+RUN mkdir -p /var/www/storage/framework/sessions
 
 # Run as non-root
 USER www-data
@@ -53,9 +54,11 @@ CMD ["sh","-lc","\
   # Only generate key if missing
   if [ -z \"${APP_KEY:-}\" ] && ! grep -Eq '^APP_KEY=base64:' .env 2>/dev/null; then php artisan key:generate --force; fi; \
   php artisan migrate --force || true; \
-  php artisan config:cache || true; \
+  php artisan view:clear    || true\
+  php artisan cache:clear   || true\
+  php artisan config:cache  || true\
+  php artisan view:cache    || true\
   php artisan route:cache || true; \
-  php artisan view:cache  || true; \
   php artisan serve --host=0.0.0.0 --port=$PORT \
 "]
 

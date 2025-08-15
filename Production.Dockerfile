@@ -41,13 +41,23 @@ CMD ["sh","-lc","\
   set -e; \
   : \"${PORT:=10000}\"; \
   if [ ! -f .env ] && [ -f .env.example ]; then cp .env.example .env; fi; \
-  mkdir -p storage bootstrap/cache; \
-  # SQLite file if using sqlite
+  # Respect custom VIEW_COMPILED_PATH or use default
+  : \"${VIEW_COMPILED_PATH:=/var/www/storage/framework/views}\"; \
+  mkdir -p \"$VIEW_COMPILED_PATH\" storage/framework/{cache,cache/data,sessions,testing} bootstrap/cache; \
+  chmod -R 777 storage bootstrap/cache || true; \
   if [ \"${DB_CONNECTION}\" = \"sqlite\" ] && [ -n \"${DB_DATABASE}\" ]; then \
     mkdir -p \"$(dirname \"$DB_DATABASE\")\" && touch \"$DB_DATABASE\"; \
   fi; \
   php artisan key:generate --force || true; \
   php artisan migrate --force || true; \
   php artisan config:cache || true; \
+  php artisan optimize:clear || true\
+  php artisan config:cache || true\
+  php artisan view:clear || true\
+  php artisan view:cache || true\
+  mkdir -p /var/www/storage/framework/views /var/www/bootstrap/cache\
+  chmod -R 777 storage bootstrap/cache || true\
+  mkdir -p /var/www/storage/framework/sessions\
+  chmod -R 777 /var/www/storage /var/www/bootstrap/cache\
   php artisan serve --host=0.0.0.0 --port=$PORT \
 "]

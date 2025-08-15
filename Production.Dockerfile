@@ -42,32 +42,21 @@ USER www-data
 ENV PORT=10000
 EXPOSE 10000
 CMD ["sh","-lc","\
-  set -Eeuo pipefail; \
+  set -e; \
   : \"${PORT:=10000}\"; \
-  # Ensure .env exists
-  if [ ! -f .env ] && [ -f .env.example ]; then cp .env.example .env; fi; \
-  # Folders & perms
+  # Create again at runtime (idempotent) in case image was rebuilt or disk mounted
   mkdir -p storage/framework/{cache,cache/data,sessions,testing,views} bootstrap/cache; \
-  chmod -R 777 storage bootstrap/cache || true; \
-  # SQLite file if used
-  if [ \"${DB_CONNECTION:-}\" = \"sqlite\" ] && [ -n \"${DB_DATABASE:-}\" ]; then \
-    mkdir -p \"$(dirname \"$DB_DATABASE\")\" && touch \"$DB_DATABASE\" && chmod 666 \"$DB_DATABASE\"; \
-  fi; \
-  # Generate APP_KEY if missing/empty
-  if ! grep -q '^APP_KEY=' .env || [ -z \"$(grep '^APP_KEY=' .env | cut -d= -f2)\" ]; then \
-    php artisan key:generate --force; \
-  fi; \
-  # Clear -> migrate -> re-cache
+  # Not needed if USER is www-data, but harmless:
+  chown -R www-data:www-data storage bootstrap/cache || true; \
+  # Clear first so new env is read, then rebuild caches
   php artisan config:clear || true; \
-  php artisan cache:clear || true; \
-  php artisan view:clear || true; \
-  php artisan route:clear || true; \
+  # Only generate key if missing
+  if [ -z \"${APP_KEY:-}\" ] && ! grep -Eq '^APP_KEY=base64:' .env 2>/dev/null; then php artisan key:generate --force; fi; \
   php artisan migrate --force || true; \
-  php artisan storage:link || true; \
   php artisan config:cache || true; \
   php artisan route:cache || true; \
-  php artisan view:cache || true; \
-  # Run app
-  php artisan serve --host=0.0.0.0 --port=${PORT} \
+  php artisan view:cache  || true; \
+  php artisan serve --host=0.0.0.0 --port=$PORT \
 "]
+
 

@@ -18,7 +18,7 @@ WORKDIR /var/www
 # Defaults for local
 ENV DB_CONNECTION=sqlite \
     DB_DATABASE=/var/www/database/database.sqlite \
-    PORT=800
+    PORT=8000
 
 EXPOSE 8000
 
@@ -31,5 +31,7 @@ CMD ["sh","-lc","\
   [ -f \"$DB_DATABASE\" ] || touch \"$DB_DATABASE\"; \
   php artisan key:generate --force || true; \
   php artisan migrate --force || true; \
+  php artisan config:cache --no-interaction || true; \
+  php artisan db:seed --force || true; \
   php artisan serve --host=0.0.0.0 --port=${PORT} \
 "]

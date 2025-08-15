@@ -33,6 +33,11 @@ COPY . .
 RUN composer run-script post-autoload-dump -n || true \
  && php artisan package:discover --ansi || true
 
+RUN mkdir -p /var/www/storage/framework/{cache,cache/data,sessions,testing,views} /var/www/bootstrap/cache \
+ && chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+
+# Run as non-root
+USER www-data
 # Render will inject PORT
 ENV PORT=10000
 EXPOSE 10000

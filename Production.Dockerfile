@@ -33,31 +33,36 @@ COPY . .
 RUN composer run-script post-autoload-dump -n || true \
  && php artisan package:discover --ansi || true
 
-RUN mkdir -p /var/www/storage/framework/{cache,cache/data,sessions,testing,views} /var/www/bootstrap/cache \
- && chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+# CHANGED: also create /var/www/database and give everything to www-data now (build-time)
+RUN mkdir -p /var/www/storage/framework/{cache,cache/data,sessions,testing,views} /var/www/bootstrap/cache /var/www/database \
+ && chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache /var/www/database
+
+# (You can keep this; it's harmless/duplicate)
 RUN mkdir -p /var/www/storage/framework/sessions
 
 # Run as non-root
 USER www-data
+
 # Render will inject PORT
 ENV PORT=10000
 EXPOSE 10000
+
+# CHANGED: remove runtime chown (can't as www-data); fix line endings with '; \'
 CMD ["sh","-lc","\
   set -e; \
   : \"${PORT:=10000}\"; \
-  # Create again at runtime (idempotent) in case image was rebuilt or disk mounted
+  # Create again at runtime (idempotent)
   mkdir -p storage/framework/{cache,cache/data,sessions,testing,views} bootstrap/cache; \
-  # Not needed if USER is www-data, but harmless:
-  chown -R www-data:www-data storage bootstrap/cache || true; \
   # Clear first so new env is read, then rebuild caches
   php artisan config:clear || true; \
   if [ \"${DB_CONNECTION}\" = \"sqlite\" ]; then \
     : \"${DB_DATABASE:=/var/www/storage/database.sqlite}\"; export DB_DATABASE; \
     dbdir=\"$(dirname \"$DB_DATABASE\")\"; \
     if [ ! -d \"$dbdir\" ]; then \
+      # If it's under /var/www and missing, fail loudly (should have been created at build)
       case \"$dbdir\" in \
-        /var/www/*) mkdir -p \"$dbdir\" ;; \
-        *) echo >&2 \"ERROR: $dbdir does not exist and cannot be created as www-data. Set DB_DATABASE to /var/www/storage/database.sqlite or mount a volume at that exact path.\"; exit 1 ;; \
+        /var/www/*) echo >&2 \"ERROR: $dbdir does not exist. Ensure it exists or set DB_DATABASE to /var/www/storage/database.sqlite\"; exit 1 ;; \
+        *) echo >&2 \"ERROR: $dbdir is not writable by www-data. Use /var/www/storage/database.sqlite\"; exit 1 ;; \
       esac; \
     fi; \
     [ -f \"$DB_DATABASE\" ] || : > \"$DB_DATABASE\"; \
@@ -65,12 +70,10 @@ CMD ["sh","-lc","\
   # Only generate key if missing
   if [ -z \"${APP_KEY:-}\" ] && ! grep -Eq '^APP_KEY=base64:' .env 2>/dev/null; then php artisan key:generate --force; fi; \
   php artisan migrate --force || true; \
-  php artisan view:clear    || true\
-  php artisan cache:clear   || true\
-  php artisan config:cache  || true\
-  php artisan view:cache    || true\
-  php artisan route:cache || true; \
+  php artisan view:clear    || true; \
+  php artisan cache:clear   || true; \
+  php artisan config:cache  || true; \
+  php artisan view:cache    || true; \
+  php artisan route:cache   || true; \
   php artisan serve --host=0.0.0.0 --port=$PORT \
 "]
-
-

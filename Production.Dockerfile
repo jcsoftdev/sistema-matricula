@@ -47,8 +47,6 @@ CMD ["sh","-lc","\
   set -e; \
   : \"${PORT:=10000}\"; \
   : \"${VIEW_COMPILED_PATH:=/var/www/storage/framework/views}\"; \
-  # Ensure .env exists
-  if [ ! -f .env ] && [ -f .env.example ]; then cp .env.example .env; fi; \
   # Recreate required dirs (idempotent) and ensure ownership
   mkdir -p \"$VIEW_COMPILED_PATH\" storage/framework/{cache,cache/data,sessions,testing} bootstrap/cache; \
   chown -R www-data:www-data storage bootstrap/cache || true; \

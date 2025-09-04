@@ -160,11 +160,7 @@
           <div>Períodos académicos</div>
         </a>
       </li>
-      <li class="menu-item">
-        <a href="{{ route('prematriculas.aprobarView') }}" class="menu-link">
-          <div>Aprobar prematrículas</div>
-        </a>
-      </li>
+
     </ul>
   </li>
 @endif

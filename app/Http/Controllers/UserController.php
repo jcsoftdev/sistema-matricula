@@ -97,16 +97,20 @@ class UserController extends Controller
             'nombre_usuario' => 'required|string',
             'username' => 'required|string',
             'user_rol' => 'required|string',
+            'password' => 'nullable|string|min:8|confirmed',
         ]);
 
         $usuario->name = $request->nombre_usuario;
         $usuario->username = $request->username;
-        //$user->password = $user->password;
+        // Only update password when provided
+        if ($request->filled('password')) {
+            $usuario->password = Hash::make($request->password);
+        }
         $usuario->rol = $request->user_rol;
 
         $usuario->save();
 
-        return redirect()->route('users.index')->with('success', 'Usuario '.$request->name.' actualizado correctamente.');
+        return redirect()->route('users.index')->with('success', 'Usuario '.$request->nombre_usuario.' actualizado correctamente.');
 
     }
 

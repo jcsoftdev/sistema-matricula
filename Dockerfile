@@ -14,7 +14,7 @@ COPY . /var/www
 
 # Ensure storage and bootstrap cache directories exist and are writable
 # This prevents realpath/storage path issues during composer scripts or config caching
-RUN mkdir -p storage/framework/views storage/framework/cache/data storage/logs bootstrap/cache \
+RUN mkdir -p storage/framework/views storage/framework/cache/data storage/framework/sessions storage/logs bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 

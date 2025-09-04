@@ -9,7 +9,7 @@
 <div class="row">
 
     <div class="col-md-12">
-                
+
         @include('layouts.alerts')
 
         <div class="card ">
@@ -48,18 +48,18 @@
                                         <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modal-delete-{{$usuario->id}}">
                                             <i class='bx bx-trash'></i>
                                         </button>
-                                        @include('usuarios.modal-delete')                                            
+                                        @include('usuarios.modal-delete')
                                     </td>
-                                </tr>                        
+                                </tr>
                             @endforeach
-                            
+
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        
+
     </div>
 </div>
 
@@ -80,7 +80,7 @@
             <form action="{{route('users.store')}}" method="POST">
               @csrf
               @method('post')
-              
+
               <div class="modal-body">
                   <div class="row mb-3">
                     <label class="col-sm-2 col-form-label" for="basic-icon-default-fullname">Nombre</label>
@@ -91,7 +91,7 @@
                       </div>
                     </div>
                   </div>
-                  
+
                   <div class="row mb-3">
                     <label class="col-sm-2 col-form-label" for="basic-icon-default-fullname">Username</label>
                     <div class="col-sm-10">
@@ -101,12 +101,12 @@
                       </div>
                     </div>
                   </div>
-                  
+
                   <div class="row mb-3">
                     <label class="col-sm-2 col-form-label" for="basic-icon-default-fullname">Contraseña</label>
                     <div class="col-sm-10">
                       <div class="input-group input-group-merge">
-                        <span id="basic-icon-default-fullname2" class="input-group-text"><i class='bx bx-lock-alt'></i></span> 
+                        <span id="basic-icon-default-fullname2" class="input-group-text"><i class='bx bx-lock-alt'></i></span>
                         <input type="password" class="form-control" name="password" id="basic-icon-default-fullname" required  placeholder="********" aria-describedby="basic-icon-default-fullname2">
                       </div>
                     </div>
@@ -119,15 +119,15 @@
                             <span id="basic-icon-default-fullname2" class="input-group-text"><i class='bx bx-checkbox-checked'></i></span>
                             <select name="user_rol" class="form-select">
                                 <option selected disabled value="">Seleccione...</option>
-                                <option value="Administrador">Administrador</option>
-                                <option value="Secretaría">Secretaría</option>
-                                <option value="Padre">Padre</option>
+                                <option value="admin">Administrador</option>
+                                <option value="secretario">Secretaría</option>
+                                <option value="padre">Padre</option>
                             </select>
                         </div>
                     </div>
                 </div>
 
-                  
+
               </div>
               <div class="modal-footer">
                   <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">

@@ -71,11 +71,11 @@
                                 <select name="user_rol" class="form-select">
                                     <option selected disabled value="">Seleccione...</option>
                                     @if ($usuario->rol=="admin")
-                                      <option value="Administrador" selected>Administrador</option>
-                                      <option value="Secretaría">Secretaría</option>
+                                      <option value="admin" selected>Administrador</option>
+                                      <option value="secretario">Secretaría</option>
                                     @elseif($usuario->rol=="secretario")
-                                      <option value="Administrador" >Administrador</option>
-                                      <option value="Secretaría" selected>Secretaría</option>
+                                      <option value="admin">Administrador</option>
+                                      <option value="secretario" selected>Secretaría</option>
                                     @endif
                                 </select>
                             </div>

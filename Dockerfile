@@ -1,9 +1,9 @@
 FROM php:8.2-fpm
 
-# Install system dependencies
+# Install system dependencies (include libpq-dev for PostgreSQL PDO)
 RUN apt-get update && apt-get install -y \
-    git curl zip unzip libpng-dev libonig-dev libxml2-dev libzip-dev \
-    && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip
+    git curl zip unzip libpng-dev libonig-dev libxml2-dev libzip-dev libpq-dev \
+    && docker-php-ext-install pdo pdo_mysql pdo_pgsql pgsql mbstring exif pcntl bcmath gd zip
 
 # Install Composer
 COPY --from=composer:2.5 /usr/bin/composer /usr/bin/composer

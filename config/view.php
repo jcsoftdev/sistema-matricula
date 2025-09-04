@@ -28,9 +28,8 @@ return [
     |
     */
 
-    'compiled' => env(
-        'VIEW_COMPILED_PATH',
-        realpath(storage_path('framework/views'))
-    ),
+    // Use storage_path as a fallback because realpath() can return false
+    // during config caching if the directory doesn't exist yet.
+    'compiled' => env('VIEW_COMPILED_PATH', storage_path('framework/views')),
 
 ];

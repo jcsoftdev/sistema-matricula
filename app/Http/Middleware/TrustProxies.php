@@ -12,7 +12,10 @@ class TrustProxies extends Middleware
      *
      * @var array<int, string>|string|null
      */
-    protected $proxies;
+    // Trust all proxies by default in production-like environments so
+    // Laravel reads X-Forwarded-* headers (including X-Forwarded-Proto)
+    // and generates correct https asset URLs.
+    protected $proxies = '*';
 
     /**
      * The headers that should be used to detect proxies.

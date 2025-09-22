@@ -10,7 +10,7 @@ class DatabaseSeeder extends Seeder
 
     public function run()
     {
-        User::firstOrCreate(
+        User::updateOrCreate(
             ['username' => 'admin'],
             [
                 'name' => "Administrador",
@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        User::firstOrCreate(
+        User::updateOrCreate(
             ['username' => 'secretario'],
             [
                 'name' => "Secretaría",
@@ -28,7 +28,7 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        User::firstOrCreate(
+        User::updateOrCreate(
             ['username' => 'apoderado'],
             [
                 'name' => "Apoderado",

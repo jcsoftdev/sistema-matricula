@@ -2,6 +2,16 @@
 
 @section('content')
 
+@php
+  $role = $userRole ?? (Auth::user()->rol ?? '');
+  $roleLabels = [
+    'admin' => 'Administrador',
+    'secretario' => 'Secretaría',
+    'padre' => 'Apoderado',
+  ];
+  $roleLabel = $roleLabels[$role] ?? ucfirst($role);
+@endphp
+
 <div class="row d-flex justify-content-center">
   <div class="col-lg-9 mb-4">
     <div class="card">
@@ -10,7 +20,12 @@
           <div class="card-body">
             <h5 class="card-title text-primary">Bienvenido(a), {{ Auth::user()->name }} 👋</h5>
             <p class="mb-2">
-              Has iniciado sesión como <strong>Administrador</strong>. Desde aquí puedes gestionar las <strong>Matrículas</strong>, <strong>Pagos</strong> y <strong>Reportes</strong> de forma segura y eficiente.
+              Has iniciado sesión como <strong>{{ $roleLabel }}</strong>.
+              @if ($role === 'padre')
+                Aquí puedes revisar el estado de tus prematrículas y mantener tus datos actualizados.
+              @else
+                Desde aquí puedes gestionar las <strong>Matrículas</strong>, <strong>Pagos</strong> y <strong>Reportes</strong> de forma segura y eficiente.
+              @endif
             </p>
           </div>
         </div>
@@ -29,6 +44,7 @@
   </div>
 </div>
 
+@if ($role !== 'padre')
 <div class="row d-flex justify-content-center">
 
   <!-- Tarjeta Matrícula -->
@@ -80,5 +96,22 @@
   </div>
 
 </div>
+@else
+<div class="row d-flex justify-content-center">
+  <div class="col-lg-9 mb-4">
+    <div class="card h-100">
+      <div class="card-body text-center">
+        <div class="avatar mb-3">
+          <img src="{{ asset('assets/img/unicons/chart-success2.png') }}" alt="Prematrículas" class="rounded">
+        </div>
+        <h5 class="fw-semibold text-primary">Información para Apoderados</h5>
+        <p class="text-muted">
+          No tienes acceso directo a las matrículas ni a los montos registrados. Para más detalles, comunícate con la Secretaría del colegio.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+@endif
 
 @endsection

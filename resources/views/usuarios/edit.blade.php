@@ -68,15 +68,10 @@
                         <div class="col-sm-10">
                             <div class="input-group input-group-merge">
                                 <span id="basic-icon-default-fullname2" class="input-group-text"><i class='bx bx-checkbox-checked'></i></span>
-                                <select name="user_rol" class="form-select">
-                                    <option selected disabled value="">Seleccione...</option>
-                                    @if ($usuario->rol=="admin")
-                                      <option value="admin" selected>Administrador</option>
-                                      <option value="secretario">Secretaría</option>
-                                    @elseif($usuario->rol=="secretario")
-                                      <option value="admin">Administrador</option>
-                                      <option value="secretario" selected>Secretaría</option>
-                                    @endif
+                                <select name="user_rol" class="form-select" required>
+                                    <option value="admin" {{ $usuario->rol === 'admin' ? 'selected' : '' }}>Administrador</option>
+                                    <option value="secretario" {{ $usuario->rol === 'secretario' ? 'selected' : '' }}>Secretaría</option>
+                                    <option value="padre" {{ $usuario->rol === 'padre' ? 'selected' : '' }}>Padre</option>
                                 </select>
                             </div>
                         </div>
